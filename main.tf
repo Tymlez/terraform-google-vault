@@ -88,18 +88,16 @@ resource "google_cloud_run_service" "default" {
 
   metadata {
     namespace = var.project
-  }
-
-  template {
-    metadata {
-      annotations = {
+    annotations = {
         "autoscaling.knative.dev/maxScale"        = 1 # HA not Supported
         "run.googleapis.com/vpc-access-connector" = var.vpc_connector != "" ? var.vpc_connector : null
         # Hardcoded here after a change in the Cloud Run API response
         "run.googleapis.com/sandbox" = "gvisor"
         "run.googleapis.com/ingress" = "internal" #set internal only
       }
-    }
+  }
+
+  template {
     spec {
       service_account_name  = google_service_account.vault.email
       container_concurrency = var.container_concurrency
