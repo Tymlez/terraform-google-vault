@@ -93,7 +93,7 @@ resource "google_cloud_run_service" "default" {
         "run.googleapis.com/vpc-access-connector" = var.vpc_connector != "" ? var.vpc_connector : null
         # Hardcoded here after a change in the Cloud Run API response
         "run.googleapis.com/sandbox" = "gvisor"
-        "run.googleapis.com/ingress" = "internal" #set internal only
+        "run.googleapis.com/ingress" = "all" #set internal only
       }
   }
 
@@ -148,6 +148,10 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
   service  = google_cloud_run_service.default.name
 
   policy_data = data.google_iam_policy.noauth.policy_data
+}
+
+output "app_name" {
+  value = google_cloud_run_service.default.name
 }
 
 output "app_url" {
