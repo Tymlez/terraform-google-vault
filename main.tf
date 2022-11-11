@@ -97,6 +97,7 @@ resource "google_cloud_run_service" "default" {
         "run.googleapis.com/vpc-access-connector" = var.vpc_connector != "" ? var.vpc_connector : null
         # Hardcoded here after a change in the Cloud Run API response
         "run.googleapis.com/sandbox" = "gvisor"
+        "run.googleapis.com/ingress" = "internal" #set internal only
       }
     }
     spec {
