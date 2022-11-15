@@ -84,19 +84,16 @@ resource "google_cloud_run_service" "default" {
   name                       = var.name
   project                    = var.project
   location                   = var.location
+  provider = google-beta
   autogenerate_revision_name = true
 
   metadata {
-    namespace = var.project
     annotations = {
-        "autoscaling.knative.dev/maxScale"        = 1 # HA not Supported
-        "run.googleapis.com/vpc-access-connector" = var.vpc_connector != "" ? var.vpc_connector : null
-        # Hardcoded here after a change in the Cloud Run API response
-        "run.googleapis.com/sandbox" = "gvisor"
-        "run.googleapis.com/ingress" = "all" #set internal only
-      }
+#      "autoscaling.knative.dev/maxScale" = 1 # HA not Supported
+      "run.googleapis.com/vpc-access-connector" = var.vpc_connector != "" ? var.vpc_connector : null
+      "run.googleapis.com/ingress" = "all" #set internal only
+    }
   }
-
   template {
     spec {
       service_account_name  = google_service_account.vault.email
@@ -128,6 +125,11 @@ resource "google_cloud_run_service" "default" {
           }
           requests = {}
         }
+      }
+    }
+    metadata {
+      annotations = {
+        "autoscaling.knative.dev/maxScale" = 1 # HA not Supported
       }
     }
   }
