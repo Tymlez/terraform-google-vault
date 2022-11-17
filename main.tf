@@ -80,10 +80,11 @@ resource "google_kms_key_ring_iam_member" "vault" {
   member      = "serviceAccount:${google_service_account.vault.email}"
 }
 
-resource "google_cloud_run_service" "default" {
-  name                       = var.name
+resource "google_cloud_run_service" "vault" {
+  for_each                   = toset(var.run_regions)
+  name                       = "${var.name}-${each.key}"
   project                    = var.project
-  location                   = var.location
+  location                   = each.key
   provider = google-beta
   autogenerate_revision_name = true
 
@@ -135,6 +136,18 @@ resource "google_cloud_run_service" "default" {
   }
 }
 
+resource "google_compute_region_network_endpoint_group" "neg" {
+  for_each = toset(var.run_regions)
+
+  name                  = "${var.stage}-${var.app_name}-vault-serverless-neg"
+  network_endpoint_type = "SERVERLESS"
+  region                = each.key
+
+  cloud_run {
+    service = google_cloud_run_service.vault[each.key].name
+  }
+}
+
 data "google_iam_policy" "noauth" {
   binding {
     role = "roles/run.invoker"
@@ -145,19 +158,20 @@ data "google_iam_policy" "noauth" {
 }
 
 resource "google_cloud_run_service_iam_policy" "noauth" {
-  location = google_cloud_run_service.default.location
-  project  = google_cloud_run_service.default.project
-  service  = google_cloud_run_service.default.name
+  for_each = toset(var.run_regions)
+  location = google_cloud_run_service.vault[each.key].location
+  project  = google_cloud_run_service.vault[each.key].project
+  service  = google_cloud_run_service.vault[each.key].name
 
   policy_data = data.google_iam_policy.noauth.policy_data
 }
 
 output "app_name" {
-  value = google_cloud_run_service.default.name
+  value = google_cloud_run_service.vault.name
 }
 
 output "app_url" {
-  value = google_cloud_run_service.default.status[0].url
+  value = google_cloud_run_service.vault.status[0].url
 }
 
 output "service_account_email" {
