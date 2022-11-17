@@ -89,3 +89,15 @@ variable "vault_storage_bucket_location" {
   type        = string
   default     = "US"
 }
+
+variable "run_regions" {
+  default =  ["australia-southeast1", "australia-southeast2"]
+}
+
+variable "stage" {
+  description = "Environment stage"
+}
+
+variable "app_name" {
+  description = "The name of the app being deployed (used for domains e.g. $stage.$app_name.tymlez.com)"
+}
