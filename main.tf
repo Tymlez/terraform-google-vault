@@ -130,7 +130,7 @@ resource "google_cloud_run_service" "vault" {
     }
     metadata {
       annotations = {
-        "autoscaling.knative.dev/maxScale" = 1 # HA not Supported
+        "autoscaling.knative.dev/maxScale" = 1 # Disable multiple per region for now
       }
     }
   }
@@ -166,14 +166,14 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
   policy_data = data.google_iam_policy.noauth.policy_data
 }
 
-#output "app_name" {
-#  value = google_cloud_run_service.vault[*].name
-#}
+output "app_name" {
+  value = values(google_cloud_run_service.vault)[*].name
+}
 
-#output "app_url" {
-#  value = google_cloud_run_service.vault[*].status[0].url
-#}
-#
-#output "service_account_email" {
-#  value = google_service_account.vault[*].email
-#}
+output "app_url" {
+  value = values(google_cloud_run_service.vault)[*].status[0].url
+}
+
+output "service_account_email" {
+  value = google_service_account.vault[*].email
+}
