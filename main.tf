@@ -136,7 +136,7 @@ resource "google_cloud_run_service" "vault" {
   }
 }
 
-resource "google_compute_region_network_endpoint_group" "neg" {
+resource "google_compute_region_network_endpoint_group" "serverless_neg" {
   for_each = toset(var.run_regions)
 
   name                  = "${var.stage}-${var.app_name}-vault-serverless-neg"
